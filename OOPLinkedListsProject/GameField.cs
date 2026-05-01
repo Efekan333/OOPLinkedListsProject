@@ -9,6 +9,7 @@ namespace OOPLinkedListsProject
     {
         private FieldNode? head = null;
         private FieldNode? tail = null;
+        private int length;
 
         public GameField(Player player1, Player player2)
         {
@@ -20,6 +21,8 @@ namespace OOPLinkedListsProject
                 length = Convert.ToInt32(Console.ReadLine());
 
             } while (length < 10 && length > 500);
+
+            this.length = length;
 
 
 
@@ -75,14 +78,7 @@ namespace OOPLinkedListsProject
                 currentPlayer.position.tileNr -= 5;
             }
 
-            currentPlayer.ForewardMove(this, startTileNr - 1);
-
-            
-
-
-
-
-            
+            currentPlayer.ForewardMove(this, startTileNr - 1);      
         }
         
 
@@ -145,10 +141,11 @@ namespace OOPLinkedListsProject
                 Console.WriteLine("You expand the map behind u by 5 tiles!");
                 ExpandMapBeforeCurrent(n, currentPlayer);                
                 //FixTileNr(currentPlayer, n);
-
             }
 
         }
+
+       
 
        
 
@@ -163,7 +160,7 @@ namespace OOPLinkedListsProject
                 newNode.next = null;
             }
         }
-        private void ExpandMapBeforeCurrent(int n, Player currentPlayer) //before means left of it
+        public void ExpandMapBeforeCurrent(int n, Player currentPlayer) //before means left of it
         {
             //cant be tail, because checks in Update() for it:
             
