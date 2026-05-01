@@ -9,7 +9,7 @@ namespace OOPLinkedListsProject
     {
         private FieldNode? head = null;
         private FieldNode? tail = null;
-        private int length;
+        private int Length { get; set; }
 
         public GameField(Player player1, Player player2)
         {
@@ -22,7 +22,7 @@ namespace OOPLinkedListsProject
 
             } while (length < 10 && length > 500);
 
-            this.length = length;
+            Length = length;
 
 
 
@@ -61,32 +61,42 @@ namespace OOPLinkedListsProject
             }
         }
 
+        void FixTail(FieldNode oldTail, int addedTiles)
+        {
+            FieldNode nextNode = oldTail.next;
+            for(int i = 1; i <= addedTiles; i++)
+            {
+                nextNode.tileNr = oldTail.tileNr + i;
+                nextNode = nextNode.next;
+            }
+
+       
+        }
+
         void FixTileNr(Player currentPlayer, int addedTiles)
         {
-            int startTileNr = currentPlayer.position.tileNr;
-            int tmp = startTileNr;
-
-            for(int i = 0; i < addedTiles; i++)
+            FieldNode currentPosition = currentPlayer.position;
+            for (int i = currentPosition.tileNr; i < Length; i++) //Teile rechts fixen
             {
-                currentPlayer.BackwardMove(this, 1);
-                currentPlayer.position.tileNr = --tmp;
+                
+                currentPosition.tileNr += 5;
+                currentPosition = currentPosition.next;
             }
-
-            while (currentPlayer.position != head) // should be the head at the end
+            currentPosition = currentPlayer.position.prev;
+            int id = currentPlayer.position.tileNr;
+            for (int i = 1; i <= 5; i++) //Teile links fixen
             {
-                currentPlayer.BackwardMove(this, 1);
-                currentPlayer.position.tileNr -= 5;
+                currentPosition.tileNr = id - i;
+                currentPosition = currentPosition.prev;
             }
-
-            currentPlayer.ForewardMove(this, startTileNr - 1);      
         }
-        
+
 
 
 
         public void PrintCurrentState(int round, Player p1, Player p2)
         {
-            Console.Clear();
+            //Console.Clear();
             Console.WriteLine($"Current Round: {round}");
 
             Console.WriteLine($"{p1.name} is currently in Tile: {p1.position.tileNr}"); //TODO IF APPENDING NEW NODES WATHC OUT THAT TILENR IS STILL ACCURATE
@@ -130,7 +140,9 @@ namespace OOPLinkedListsProject
 
             if (diceThrow == 1)
             {
+                FieldNode oldTail = tail;
                 ExpandMapEnd(5);
+                FixTail(oldTail ,5);
                 Console.WriteLine("The Map expands by 5 tiles!");
 
             }
@@ -140,7 +152,7 @@ namespace OOPLinkedListsProject
                 int n = 5;
                 Console.WriteLine("You expand the map behind u by 5 tiles!");
                 ExpandMapBeforeCurrent(n, currentPlayer);                
-                //FixTileNr(currentPlayer, n);
+                FixTileNr(currentPlayer, n);
             }
 
         }
@@ -151,16 +163,20 @@ namespace OOPLinkedListsProject
 
         private void ExpandMapEnd(int n)
         {
-            FieldNode newNode = new FieldNode();
+            
+
             for (int i = 0; i < n; i++)
             {
+                FieldNode newNode = new FieldNode();
                 tail.next = newNode;
                 newNode.prev = tail;
                 tail = newNode;
-                newNode.next = null;
+                tail.next = null;
             }
+            Length += 5;
         }
-        public void ExpandMapBeforeCurrent(int n, Player currentPlayer) //before means left of it
+
+        private void ExpandMapBeforeCurrent(int n, Player currentPlayer) //before means left of it
         {
             //cant be tail, because checks in Update() for it:
             
