@@ -42,15 +42,19 @@
                     Console.WriteLine($"{currentPlayer} hat gewonnen!");
                     break;
                 }
+                
+                Console.ReadLine();
             
                 feld.PrintCurrentState(player1, player2);
                 
                 rundenToken = (rundenToken + 1) % 2;
-            } 
+                
+                feld.testGameBoard();
+            }  
             
             //testy test
-             // GameField testField = new GameField(10);
-             // testField.testGameBoard();
+            // GameField testField = new GameField(10);
+            //  testField.testGameBoard();
         }
     }
 }

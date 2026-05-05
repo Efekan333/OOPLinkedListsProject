@@ -8,10 +8,10 @@ namespace OOPLinkedListsProject
     public class GameField
     {
         private static int nextTileNr = 0; //testzwecke
-        internal FieldNode? head = null;
-        internal FieldNode? tail = null;
+        private FieldNode? head = null;
+        private FieldNode? tail = null;
         private int FieldLength { get; set; }
-        private int RoundCount { get; set; } //implementieren
+        private int RoundCount { get; set; }
         public enum NodeType {none , snake, ladder}
         
         public GameField(int length)
@@ -138,7 +138,7 @@ namespace OOPLinkedListsProject
         public void PrintCurrentState(Player p1, Player p2)
         {
             Console.Clear();
-            Console.WriteLine($"Current Round: {RoundCount++}");
+            Console.WriteLine($"Current Round: {RoundCount++}   Board Length: {FieldLength}");
 
             Console.WriteLine($"{p1.name} is currently in Tile: {p1.position.tileNr}"); //TODO IF APPENDING NEW NODES WATHC OUT THAT TILENR IS STILL ACCURATE
             Console.WriteLine($"{p2.name} is currently in Tile: {p2.position.tileNr}");
@@ -180,7 +180,7 @@ namespace OOPLinkedListsProject
             {
                 FieldNode oldTail = tail;
                 ExpandMapEnd(5);
-                //FixTail(oldTail ,5);
+                FixTileNr();
                 Console.WriteLine("The Map expands by 5 tiles!");
             }
 
@@ -189,7 +189,7 @@ namespace OOPLinkedListsProject
                 int n = 5;
                 Console.WriteLine("You expand the map behind you by 5 tiles!");
                 ExpandMapBeforeCurrent(n, currentPlayer);                
-                //FixTileNr(currentPlayer, n);
+                FixTileNr();
             }
 
         }
@@ -227,6 +227,7 @@ namespace OOPLinkedListsProject
                     currentPlayer.position.prev = newNode;
                 }
             }
+            FieldLength += 5;
             FixTileNr();
         }
 
