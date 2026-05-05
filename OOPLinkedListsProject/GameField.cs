@@ -7,57 +7,116 @@ namespace OOPLinkedListsProject
 {
     public class GameField
     {
-        private FieldNode? head = null;
-        private FieldNode? tail = null;
-        private int Length { get; set; }
-
-        public GameField(Player player1, Player player2)
+        private static int nextTileNr = 0; //testzwecke
+        internal FieldNode? head = null;
+        internal FieldNode? tail = null;
+        private int FieldLength { get; set; }
+        private int RoundCount { get; set; } //implementieren
+        public enum NodeType {none , snake, ladder}
+        
+        public class FieldNode
         {
-            int length;
-
-            do
+            //public bool Snake { get; set; } = false; //ALTE BOOLS
+            //public bool Ladder { get; set; } = false; //ALTE BOOLS
+            public NodeType nodeType = NodeType.none;
+            public FieldNode? next = null;
+            public FieldNode? prev = null;
+            private GameField parent;
+            public int tileNr; //testzwecke
+            
+            public FieldNode(FieldNode prev, FieldNode next)
             {
-                Console.WriteLine("How Long should the Map be? (10 <= input <= 500) ");
-                length = Convert.ToInt32(Console.ReadLine());
-
-            } while (length < 10 && length > 500);
-
-            Length = length;
-
-
-
-            FieldNode firstNode = new FieldNode();
-
-            head = firstNode;
-            tail = firstNode;
-
-            for (int i = length - 1; i > 0; i--)
-            {
-                FieldNode newNode = new FieldNode();
-                FillNodeWithInfo(newNode, i);
-                head.prev = newNode;
-                newNode.next = head;
-                head = newNode;
-                newNode.prev = null;
+                this.prev = prev;
+                this.next = next;
+                tileNr = nextTileNr; //testzwecke
+                nextTileNr++; //testzwecke
             }
-
-            player1.position = player2.position = head;
         }
 
 
-
-        private void FillNodeWithInfo(FieldNode node, int pos)
+        public class Player
         {
-            node.tileNr = pos;
+            public bool won;
+            public string name;
+            private GameField parent;
+            public FieldNode position;
+            public int throws = 0;
 
-            if(pos % 5 == 0)
+            public Player(string name, GameField parent)
             {
-                node.Ladder = true;
+                this.name = name;
+                this.parent = parent;
+                this.position = parent.head;
             }
 
-            else if (pos % 8 == 0)
+
+            public void ForewardMove(GameField game, int n)
             {
-                node.Snake = true; 
+                while (position!= game.tail)
+                {
+                    if (n-- == 0) break;
+                    position = position.next;
+                }
+
+                if (position == game.tail)
+                {
+                    won = true;
+                }
+            }
+
+            public void BackwardMove(GameField game, int n)
+            {
+                while (position != game.head)
+                {
+                    if (n-- == 0) break;
+                    position = position.prev;
+                }
+            }
+
+            public static int ThrowDice()
+            {
+                Random rd = new Random();
+                int diceThrow = rd.Next(6) + 1; 
+                return diceThrow;
+            }
+            
+            public override string ToString()
+            {
+                return name;
+            }
+        }
+
+        public GameField(int length)
+        {
+            FieldLength = length * length; //quadratisches Spielfeld
+
+            for (int i = 1; i <= FieldLength; i++)
+            {
+                InsertNode(i);
+            }
+        }
+        
+        private void InsertNode(int i)
+        {
+            FieldNode newNode = new FieldNode(null, head);
+            if (head == null)
+            {
+                tail = newNode;
+            }
+            else
+            {
+                head.prev = newNode;
+            }
+            head = newNode;
+            
+            if(i % 5 == 0)
+            {
+                newNode.nodeType = NodeType.ladder;
+            }
+
+            else if (i % 8 == 0)
+            {
+                newNode.nodeType = NodeType.snake; 
             }
         }
 
@@ -69,14 +128,12 @@ namespace OOPLinkedListsProject
                 nextNode.tileNr = oldTail.tileNr + i;
                 nextNode = nextNode.next;
             }
-
-       
         }
 
         void FixTileNr(Player currentPlayer, int addedTiles)
         {
             FieldNode currentPosition = currentPlayer.position;
-            for (int i = currentPosition.tileNr; i < Length; i++) //Teile rechts fixen
+            for (int i = currentPosition.tileNr; i < FieldLength; i++) //Teile rechts fixen
             {
                 
                 currentPosition.tileNr += 5;
@@ -90,23 +147,22 @@ namespace OOPLinkedListsProject
                 currentPosition = currentPosition.prev;
             }
         }
-
-
-
-
-        public void PrintCurrentState(int round, Player p1, Player p2)
+        
+        public void PrintCurrentState(Player p1, Player p2)
         {
-            //Console.Clear();
-            Console.WriteLine($"Current Round: {round}");
+            Console.Clear();
+            Console.WriteLine($"Current Round: {RoundCount++}");
 
             Console.WriteLine($"{p1.name} is currently in Tile: {p1.position.tileNr}"); //TODO IF APPENDING NEW NODES WATHC OUT THAT TILENR IS STILL ACCURATE
             Console.WriteLine($"{p2.name} is currently in Tile: {p2.position.tileNr}");
-
+            
+            // Vorrübergehender Printstate mit tileNr, wird mit graphischer Darstellung ohne ID ersetzt
         }
 
 
         public void Update(Player currentPlayer,Player otherPlayer,  int diceThrow )
         {
+            
             currentPlayer.ForewardMove(this ,diceThrow);
 
             if (currentPlayer.position == tail) //win takes precendence over snake and other stuff. 
@@ -114,164 +170,86 @@ namespace OOPLinkedListsProject
                 currentPlayer.won = true;
                 return;
             }
-
-
-            if (currentPlayer.position.Snake)
+            
+            if (currentPlayer.position.nodeType == NodeType.snake)
             {
                 currentPlayer.BackwardMove(this, 3);
                 Console.WriteLine("SNAKE!!");
-
             }
-
-            else if (currentPlayer.position.Ladder)
+            
+            else if (currentPlayer.position.nodeType == NodeType.ladder)
             {
                 currentPlayer.ForewardMove(this, 3);
                 Console.WriteLine("LADDERR!!!");
-
             }
-
-
+            
             if (currentPlayer.position == otherPlayer.position)
             {
                 currentPlayer.BackwardMove(this, 1);
                 Console.WriteLine("YOU HIT THE OTHER PLAYER!!");
-
             }
 
             if (diceThrow == 1)
             {
                 FieldNode oldTail = tail;
                 ExpandMapEnd(5);
-                FixTail(oldTail ,5);
+                //FixTail(oldTail ,5);
                 Console.WriteLine("The Map expands by 5 tiles!");
-
             }
 
             if (diceThrow == 6)
             {
                 int n = 5;
-                Console.WriteLine("You expand the map behind u by 5 tiles!");
+                Console.WriteLine("You expand the map behind you by 5 tiles!");
                 ExpandMapBeforeCurrent(n, currentPlayer);                
-                FixTileNr(currentPlayer, n);
+                //FixTileNr(currentPlayer, n);
             }
 
         }
 
        
 
-       
-
+        //Expand Maps Funktionen
         private void ExpandMapEnd(int n)
         {
-            
-
             for (int i = 0; i < n; i++)
             {
-                FieldNode newNode = new FieldNode();
+                FieldNode newNode = new FieldNode(tail, null);
                 tail.next = newNode;
-                newNode.prev = tail;
                 tail = newNode;
-                tail.next = null;
             }
-            Length += 5;
+            FieldLength += 5;
         }
 
         private void ExpandMapBeforeCurrent(int n, Player currentPlayer) //before means left of it
         {
+            
             //cant be tail, because checks in Update() for it:
-            
-            
             if(currentPlayer.position == head)
             {
-                for (int i = 0; i < n; i++)
-                {
-                    FieldNode newNode = new FieldNode();
-                    head.prev = newNode;
-                    newNode.next = head;
-                    head = newNode;
-                    newNode.prev = null;
-                }
-                
+                InsertNode(n);
             }
+            
             else
             {
                 for(int i = 0; i < n; i++)
                 {
-                    FieldNode newNode = new FieldNode();
-                    newNode.next = currentPlayer.position;
+                    FieldNode newNode = new FieldNode(currentPlayer.position.prev, currentPlayer.position);
                     currentPlayer.position.prev.next = newNode;
-                    newNode.prev = currentPlayer.position.prev;
                     currentPlayer.position.prev = newNode;
-
                 }
             }
-
-
-
-
+            
         }
 
-
-        public class FieldNode
+        public void testGameBoard()
         {
-            public bool Snake { get; set; } = false;
-            public bool Ladder { get; set; } = false;
-
-            public FieldNode? next = null;
-            public FieldNode? prev = null;
-            public int tileNr;
+            FieldNode? start = head;
+            while (start != null)
+            {
+                Console.WriteLine($"{start.tileNr} {start.nodeType}");
+                start = start.next;
+            }
         }
-
-
-        public class Player
-        {
-            public bool won;
-            public string name;
-            public FieldNode position;
-
-            public Player(string name)
-            {
-                this.name = name;
-            }
-
-
-            public void ForewardMove(GameField game, int n)
-            {
-                while (position!= game.tail)
-                {
-                    if (n-- == 0) break;
-
-                    position = position.next;
-
-                }
-            }
-
-            public void BackwardMove(GameField game, int n)
-            {
-                while (position != game.head)
-                {
-                    if (n-- == 0) break;
-
-                    position = position.prev;
-
-
-                }
-            }
-
-            public static int ThrowDice()
-            {
-                Console.WriteLine("Press enter to throw dice");
-                Console.ReadLine();
-                Random rd = new Random();
-                int diceThrow = rd.Next(6) + 1; 
-                return diceThrow;
-            }
-
-
-
-        }
-
-
-
     }
 }
