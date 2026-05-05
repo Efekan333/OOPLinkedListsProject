@@ -51,6 +51,7 @@
                 Console.ReadLine();
             
                 feld.PrintCurrentState(player1, player2);
+                feld.PrintBoard(player1, player2);
                 
                 rundenToken = (rundenToken + 1) % 2;
             }  

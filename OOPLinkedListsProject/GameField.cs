@@ -13,10 +13,13 @@ namespace OOPLinkedListsProject
         public int FieldLength { get; set; }
         private int RoundCount { get; set; }
         public enum NodeType {none , snake, ladder}
+
+        public int maxColumns; //WIRD FÜR PRINTBOARD BENUTZT
         
-        public GameField(int length)
+        public GameField(int width)
         {
-            FieldLength = length * length; //quadratisches Spielfeld
+            maxColumns = width;
+            FieldLength = width * width; //quadratisches Spielfeld
 
             for (int i = 0; i < FieldLength; i++)
             {
@@ -53,12 +56,14 @@ namespace OOPLinkedListsProject
             private GameField parent;
             public FieldNode position;
             public int throws = 0;
+            public char spielStein;
 
             public Player(string name, GameField parent)
             {
                 this.name = name;
                 this.parent = parent;
                 this.position = parent.head;
+                spielStein = Char.ToUpper(name[0]);
             }
 
 
@@ -144,6 +149,41 @@ namespace OOPLinkedListsProject
             Console.WriteLine($"{p2.name} is currently in Tile: {p2.position.tileNr}");
             
             // Vorrübergehender Printstate mit tileNr, wird mit graphischer Darstellung ohne ID ersetzt
+        }
+        
+        public void PrintBoard(Player p1, Player p2)
+        {
+            int rows = 1;
+            int columns = 1;
+            int durchläufe = 1;
+            FieldNode? position = head;
+
+            while (position != null)
+            {
+                    columns = 1;
+                    Console.Write("-- ");
+                    while (columns <= maxColumns && position != null)
+                    {
+                        if (p1.position == position)
+                        {
+                            Console.Write($" {p1.spielStein}  ");
+                        }
+                        else if (p2.position == position)
+                        {
+                            Console.Write($" {p2.spielStein}  ");
+                        }
+                        else
+                        {
+                            if (position != null)
+                            {
+                                Console.Write($"{position.tileNr:d3} ");
+                            }
+                        }
+                        position = position.next;
+                        columns++;
+                    }
+                    Console.WriteLine("--");
+            }
         }
 
 
