@@ -49,24 +49,8 @@
             } 
             
             //testy test
-            // GameField testField = new GameField(10);
-            // testField.testGameBoard();
+             // GameField testField = new GameField(10);
+             // testField.testGameBoard();
         }
-
-
-        // static void test()
-        // {
-        //     GameField.Player p1 = new GameField.Player("efe");
-        //     GameField.Player p2 = new GameField.Player("kan");
-        //
-        //     GameField game = new GameField(p1, p2);
-        //
-        //     p1.ForewardMove(game, 20);
-        //     Console.WriteLine(p1.position.tileNr);
-        //     //game.ExpandMapBeforeCurrent(5, p1);
-        //     Console.WriteLine(p1.position.tileNr);
-        //     p1.BackwardMove(game, 6);
-        //     Console.WriteLine(p1.position.tileNr);
-        // }
     }
 }

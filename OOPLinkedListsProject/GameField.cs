@@ -14,6 +14,18 @@ namespace OOPLinkedListsProject
         private int RoundCount { get; set; } //implementieren
         public enum NodeType {none , snake, ladder}
         
+        public GameField(int length)
+        {
+            FieldLength = length * length; //quadratisches Spielfeld
+
+            for (int i = 0; i < FieldLength; i++)
+            {
+                InsertNode(i);
+            }
+
+            FixTileNr();
+        }
+        
         public class FieldNode
         {
             //public bool Snake { get; set; } = false; //ALTE BOOLS
@@ -85,16 +97,6 @@ namespace OOPLinkedListsProject
                 return name;
             }
         }
-
-        public GameField(int length)
-        {
-            FieldLength = length * length; //quadratisches Spielfeld
-
-            for (int i = 1; i <= FieldLength; i++)
-            {
-                InsertNode(i);
-            }
-        }
         
         private void InsertNode(int i)
         {
@@ -119,32 +121,17 @@ namespace OOPLinkedListsProject
                 newNode.nodeType = NodeType.snake; 
             }
         }
-
-        void FixTail(FieldNode oldTail, int addedTiles)
+        
+        void FixTileNr()
         {
-            FieldNode nextNode = oldTail.next;
-            for(int i = 1; i <= addedTiles; i++)
-            {
-                nextNode.tileNr = oldTail.tileNr + i;
-                nextNode = nextNode.next;
-            }
-        }
+            FieldNode? start = head; //hier dürfte nie head = null sein
+            int index = 1;
 
-        void FixTileNr(Player currentPlayer, int addedTiles)
-        {
-            FieldNode currentPosition = currentPlayer.position;
-            for (int i = currentPosition.tileNr; i < FieldLength; i++) //Teile rechts fixen
+            while (start != null)
             {
-                
-                currentPosition.tileNr += 5;
-                currentPosition = currentPosition.next;
-            }
-            currentPosition = currentPlayer.position.prev;
-            int id = currentPlayer.position.tileNr;
-            for (int i = 1; i <= 5; i++) //Teile links fixen
-            {
-                currentPosition.tileNr = id - i;
-                currentPosition = currentPosition.prev;
+                start.tileNr = index;
+                start = start.next;
+                index++;
             }
         }
         
@@ -219,6 +206,7 @@ namespace OOPLinkedListsProject
                 tail = newNode;
             }
             FieldLength += 5;
+            FixTileNr();
         }
 
         private void ExpandMapBeforeCurrent(int n, Player currentPlayer) //before means left of it
@@ -239,7 +227,7 @@ namespace OOPLinkedListsProject
                     currentPlayer.position.prev = newNode;
                 }
             }
-            
+            FixTileNr();
         }
 
         public void testGameBoard()
