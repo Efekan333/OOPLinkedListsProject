@@ -10,7 +10,7 @@ namespace OOPLinkedListsProject
         private static int nextTileNr = 0; //testzwecke
         private FieldNode? head = null;
         private FieldNode? tail = null;
-        private int FieldLength { get; set; }
+        public int FieldLength { get; set; }
         private int RoundCount { get; set; }
         public enum NodeType {none , snake, ladder}
         

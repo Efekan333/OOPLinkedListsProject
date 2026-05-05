@@ -10,10 +10,15 @@
             
             Console.Write("Geben Sie eine Breite für das Spielfeld ein: ");
             GameField feld = new GameField(Convert.ToInt32(Console.ReadLine()));
+            Console.WriteLine($"Euer Spielfeld ist {feld.FieldLength} Felder lang");
             Console.Write("Spieler 1: ");
             GameField.Player player1 = new GameField.Player(Console.ReadLine(), feld);
             Console.Write("Spieler 2: ");
             GameField.Player player2 = new GameField.Player(Console.ReadLine(), feld);
+            Console.Write("Drücke Enter um zu beginnen");
+            Console.ReadLine();
+            Console.Clear();
+            feld.PrintCurrentState(player1, player2);
             
             int rundenToken = 0;
             while (!(player1.won || player2.won))
@@ -48,8 +53,6 @@
                 feld.PrintCurrentState(player1, player2);
                 
                 rundenToken = (rundenToken + 1) % 2;
-                
-                feld.testGameBoard();
             }  
             
             //testy test
