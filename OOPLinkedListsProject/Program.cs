@@ -4,70 +4,61 @@
     {
         static void Main(string[] args)
         {
-
-
-            GameField.Player player1 = new GameField.Player("x");
-            GameField.Player player2 = new GameField.Player("y");
-            GameField game = new GameField(player1, player2);
-
-            int diceP1 = -1;
-            int diceP2 = -1;
-            int round = 1;
-
-
+            GameField.Player? currentPlayer = null;
+            GameField.Player? inactivePlayer = null;
+            
+            
+            Console.Write("Geben Sie eine Breite für das Spielfeld ein: ");
+            GameField feld = new GameField(Convert.ToInt32(Console.ReadLine()));
+            Console.WriteLine($"Euer Spielfeld ist {feld.FieldLength} Felder lang");
+            Console.Write("Spieler 1: ");
+            GameField.Player player1 = new GameField.Player(Console.ReadLine(), feld);
+            Console.Write("Spieler 2: ");
+            GameField.Player player2 = new GameField.Player(Console.ReadLine(), feld);
+            Console.Write("Drücke Enter um zu beginnen");
+            Console.ReadLine();
+            Console.Clear();
+            feld.PrintCurrentState(player1, player2);
+            
+            int rundenToken = 0;
             while (!(player1.won || player2.won))
             {
-
-                game.PrintCurrentState(round++, player1, player2);     //change player each loop iteration
-
-
-                Console.WriteLine("Player One Throws his Dice: ");
-                diceP1 = GameField.Player.ThrowDice();
-                Console.WriteLine($"Player One got a {diceP1}");
-
-                game.Update(player1, player2, diceP1); //need both players to check if same position. updates player 1
-                if (player1.won) break;
-
-                Console.WriteLine("");
-
-                Console.WriteLine("Player Two Throws his Dice: ");
-                diceP2 = GameField.Player.ThrowDice();
-                Console.WriteLine($"Player Two got a {diceP2}");
-
-                game.Update(player2, player1, diceP2);
-
-                Console.WriteLine("Ready for next Round?");
+                switch (rundenToken)
+                {
+                    case 0:
+                        currentPlayer = player1;
+                        inactivePlayer = player2;
+                        break;
+                    case 1:
+                        currentPlayer = player2;
+                        inactivePlayer = player1;
+                        break;
+                }
+                
+                Console.Write($"{currentPlayer} ist dran!\nDrücke Enter, um zu würfeln");
                 Console.ReadLine();
-            }
-
-            if (player1.won)
-            {
-                Console.WriteLine($"Congratiulation {player1.name}!!! YOU WONNN");
-            }
-            else if (player2.won)
-            {
-                Console.WriteLine($"Congratiulation {player2.name}!!! YOU WONNN");
-            }
-
+                int diceThrow = GameField.Player.ThrowDice();
+                Console.WriteLine($"{currentPlayer} hat eine {diceThrow} gewürfelt");
+                
+                feld.Update(currentPlayer, inactivePlayer, diceThrow);
+            
+                if (currentPlayer.won)
+                {
+                    Console.WriteLine($"{currentPlayer} hat gewonnen!");
+                    break;
+                }
+                
+                Console.ReadLine();
+            
+                feld.PrintCurrentState(player1, player2);
+                feld.PrintBoard(player1, player2);
+                
+                rundenToken = (rundenToken + 1) % 2;
+            }  
+            
+            //testy test
+            // GameField testField = new GameField(10);
+            //  testField.testGameBoard();
         }
-
-
-        static void test()
-        {
-            GameField.Player p1 = new GameField.Player("efe");
-            GameField.Player p2 = new GameField.Player("kan");
-
-            GameField game = new GameField(p1, p2);
-
-            p1.ForewardMove(game, 20);
-            Console.WriteLine(p1.position.tileNr);
-            //game.ExpandMapBeforeCurrent(5, p1);
-            Console.WriteLine(p1.position.tileNr);
-            p1.BackwardMove(game, 6);
-            Console.WriteLine(p1.position.tileNr);
-        }
-
-
-
     }
 }
